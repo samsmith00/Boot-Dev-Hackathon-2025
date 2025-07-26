@@ -4,10 +4,12 @@ const Vector2 = rl.Vector2;
 
 const Stick_Man_Module = @import("stickMan.zig");
 const global = @import("constants.zig");
+const hitbox = @import("hitbox.zig");
 
 const Stick_Man = Stick_Man_Module.Stick_Man;
+const Hit_Box = hitbox.Hitbox;
 
-pub fn draw(sm: Stick_Man) void {
+pub fn draw(sm: Stick_Man, hb: rl.Rectangle) void {
     const base = sm.position;
 
     // Draw Body
@@ -54,6 +56,10 @@ pub fn draw(sm: Stick_Man) void {
 
     const b_leg_end_l = draw_limb_helper(sm, t_leg_end_l, sm.left_leg_bottom.length, sm.left_leg_bottom.angle);
     rl.drawLineEx(t_leg_end_l, b_leg_end_l, 2, rl.Color.black);
+
+    // ---------------------------- Draw Hit_Box -------------------------------------------------
+    _ = hb;
+    //draw_hit_box(hb);
 }
 
 fn draw_limb_helper(sm: Stick_Man, start: Vector2, length: f32, angle: f32) Vector2 {
@@ -67,4 +73,13 @@ fn convert_to_int32(a: f32, b: f32) [2]i32 {
     const x: i32 = @intFromFloat(a);
     const y: i32 = @intFromFloat(b);
     return .{ x, y };
+}
+
+fn draw_hit_box(hb: rl.Rectangle) void {
+    const x: i32 = @intFromFloat(hb.x);
+    const y: i32 = @intFromFloat(hb.y);
+    const width: i32 = @intFromFloat(hb.width);
+    const height: i32 = @intFromFloat(hb.height);
+
+    rl.drawRectangleLines(x, y, width, height, rl.Color.red);
 }

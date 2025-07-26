@@ -1,0 +1,23 @@
+const std = @import("std");
+const rl = @import("raylib");
+const Vector2 = rl.Vector2;
+
+const Stick_Man_Module = @import("stickMan.zig");
+const global = @import("constants.zig");
+
+const Stick_Man = Stick_Man_Module.Stick_Man;
+
+pub fn generate_terrain() void {
+    // const bottom_left = global.TERRAIN_START;
+    // const top_rightish = global.TERRAIN_END;
+
+    const terrain_rect = rl.Rectangle{
+        .x = 0,
+        .y = global.sh + 200.00,
+        // ...
+        .width = global.sw * 2.0,
+        .height = 10,
+    };
+    const origin = Vector2.init(global.sw / 2.0, global.sh / 2.0);
+    rl.drawRectanglePro(terrain_rect, origin, -2.0 * std.math.pi, rl.Color.black);
+}

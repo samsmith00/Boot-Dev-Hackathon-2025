@@ -3,9 +3,12 @@ const global = @import("constants.zig");
 const stick_man_mod = @import("stickMan.zig");
 const draw_mod = @import("draw.zig");
 const update_mod = @import("update.zig");
+const Hit_Box = @import("hitbox.zig");
+const Terrain = @import("terrain.zig");
 
 const rl = @import("raylib");
 const Stick_Man = stick_man_mod.Stick_Man;
+// const Hitbox = Hit_Box.Hitbox;
 
 pub fn main() anyerror!void {
     // Initialization
@@ -20,13 +23,15 @@ pub fn main() anyerror!void {
     //--------------------------------------------------------------------------------------
 
     var stick_man = Stick_Man.init();
+    var hit_box = Hit_Box.init();
+    const terrain = Terrain.init();
 
     // Main game loop
     while (!rl.windowShouldClose()) { // Detect window close button or ESC key
         const dt = rl.getFrameTime();
         // Update
         //----------------------------------------------------------------------------------
-        update_mod.update(&stick_man, dt);
+        update_mod.update(&stick_man, &hit_box, terrain, dt);
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -37,7 +42,7 @@ pub fn main() anyerror!void {
         rl.clearBackground(.white);
 
         // Draw stick man to screen
-        draw_mod.draw(stick_man);
+        draw_mod.draw(stick_man, hit_box);
 
         //rl.drawText("Congrats! You created your first window!", 190, 200, 20, .light_gray);
         //----------------------------------------------------------------------------------

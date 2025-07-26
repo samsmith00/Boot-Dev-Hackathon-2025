@@ -5,33 +5,33 @@ const Vector2 = rl.Vector2;
 const Stick_Man_Module = @import("stickMan.zig");
 const global = @import("constants.zig");
 const gravity = @import("physics.zig");
+const terrain = @import("terrain.zig");
+const Hit_Box_Module = @import("hitbox.zig");
 
 const Stick_Man = Stick_Man_Module.Stick_Man;
 
-pub fn update(sm: *Stick_Man, dt: f32) void {
+pub fn update(sm: *Stick_Man, hb: *rl.Rectangle, tr: rl.Rectangle, dt: f32) void {
     sm.animation_phase += dt;
+    update_stickman(sm);
+    update_hitbox(sm, hb);
     run(sm);
     jump(sm);
-    gravity.gravity(sm, dt);
+    gravity.gravity(sm, hb, tr, dt);
+    terrain.generate_terrain();
 }
 
 fn run(sm: *Stick_Man) void {
-    var moved = false;
-
     if (rl.isKeyDown(.d)) {
         sm.facing = 1;
         sm.position = sm.position.add(Vector2.init(1, 0).scale(global.PLAYER_SPEED));
-        moved = true;
-    }
-    if (rl.isKeyDown(.a)) {
+        run_animation(sm);
+    } else if (rl.isKeyDown(.a)) {
         sm.facing = -1;
         sm.position = sm.position.add(Vector2.init(-1, 0).scale(global.PLAYER_SPEED));
-        moved = true;
-    }
-
-    if (moved) {
-        update_stickman(sm);
-    } else if (rl.isKeyReleased(.d) or rl.isKeyReleased(.a)) {
+        run_animation(sm);
+    } else if (rl.isKeyReleased(.d)) {
+        stick_man_idle(sm);
+    } else if (rl.isKeyReleased(.a)) {
         stick_man_idle(sm);
     }
 }
@@ -40,17 +40,18 @@ fn jump(sm: *Stick_Man) void {
     if (rl.isKeyPressed(.space) and sm.first_jump == false) {
         sm.velocity.y += global.JUMP_HEIGHT;
         sm.first_jump = true;
+        sm.on_ground = false;
     } else if (rl.isKeyPressed(.space) and sm.second_jump == false) {
         sm.velocity.y = 0;
         sm.velocity.y += global.JUMP_HEIGHT;
         sm.second_jump = true;
+        sm.on_ground = false;
     }
 }
 
 fn update_stickman(sm: *Stick_Man) void {
     sm.position = sm.position.add(sm.velocity);
 
-    run_animation(sm);
     // sm.right_arm_top.angle = std.math.sin(std.math.pi) * 1.2;
     // sm.right_arm_top.angle += 0.05;
 }
@@ -107,4 +108,11 @@ fn stick_man_idle(sm: *Stick_Man) void {
     sm.right_leg_bottom.angle = global.LEG_BOTTOM_ANGLE_RIGHT;
     sm.left_leg_top.angle = global.LEG_TOP_ANGLE_LEFT;
     sm.left_leg_bottom.angle = global.LEG_BOTTOM_ANGLE_LEFT;
+}
+
+fn update_hitbox(sm: *Stick_Man, hb: *rl.Rectangle) void {
+    // const x: i32 = @intFromFloat(sm.position.x);
+    // const y: i32 = @intFromFloat(sm.position.y);
+    hb.x = sm.position.x + global.HITBOX_X_OFFSET;
+    hb.y = sm.position.y + global.HITBOX_Y_OFFSET;
 }
