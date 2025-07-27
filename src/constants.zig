@@ -51,7 +51,7 @@ pub const GRAVITY_ACCELERATION: f32 = 14.0;
 
 pub const TERRAIN_START = Vector2.init(0, SCREEN_HEIGHT);
 pub const TERRAIN_END = Vector2.init(SCREEN_WIDTH, SCREEN_HEIGHT / 2);
-const num_of_recs: u32 = SCREEN_WIDTH / 80;
+const num_of_recs: u32 = SCREEN_WIDTH / 120;
 pub var TERRAIN_RECTANGLES: [num_of_recs]rl.Rectangle = undefined;
 
 pub const HITBOX_X_OFFSET: i32 = -15;
@@ -59,5 +59,11 @@ pub const HITBOX_Y_OFFSET: i32 = -18;
 pub const HITBOX_WIDTH: i32 = 29;
 pub const HITBOX_HEIGHT: i32 = 74;
 
-pub const LAZER_BEAM_COLORS = [5]u8{ "red", "green", "blue", "yellow", "orange" };
+pub const LAZER_BEAM_COLORS: [5]rl.Color = .{ rl.Color.maroon, rl.Color.dark_green, rl.Color.dark_blue, rl.Color.orange, rl.Color.dark_purple };
+pub const LAZER_BEAM_FLASH_COLORS: [5]rl.Color = .{ rl.Color.red, rl.Color.green, rl.Color.sky_blue, rl.Color.yellow, rl.Color.purple };
 pub var LAZER_BEAM_COLOR_IDX: usize = 0;
+
+pub const BOULDER_SPEED: f32 = -6.5;
+pub const BOULDER_FRICTION: f32 = 10.0;
+
+pub var GAME_ENDS: bool = false;

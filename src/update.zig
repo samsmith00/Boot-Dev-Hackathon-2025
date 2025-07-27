@@ -7,17 +7,22 @@ const global = @import("constants.zig");
 const gravity = @import("physics.zig");
 const terrain = @import("terrain.zig");
 const Hit_Box_Module = @import("hitbox.zig");
+const Hazards = @import("hazards.zig");
 
 const Stick_Man = Stick_Man_Module.Stick_Man;
+const Boulder = Hazards.Boulder;
+const Lazer = Hazards.Lazer_Beam;
 
-pub fn update(sm: *Stick_Man, hb: *rl.Rectangle, tr: rl.Rectangle, dt: f32) void {
+pub fn update(sm: *Stick_Man, hb: *rl.Rectangle, tr: rl.Rectangle, boulders: *std.ArrayList(Boulder), lazers: *std.ArrayList(Lazer), dt: f32) void {
     sm.animation_phase += dt;
     update_stickman(sm);
     update_hitbox(sm, hb);
     run(sm);
     jump(sm);
-    gravity.gravity(sm, hb, tr, dt);
+    gravity.gravity(sm, hb, tr, boulders, dt);
     terrain.generate_terrain();
+    update_boulder(boulders);
+    Hazards.update_lazers(lazers, dt);
 }
 
 fn run(sm: *Stick_Man) void {
@@ -115,4 +120,11 @@ fn update_hitbox(sm: *Stick_Man, hb: *rl.Rectangle) void {
     // const y: i32 = @intFromFloat(sm.position.y);
     hb.x = sm.position.x + global.HITBOX_X_OFFSET;
     hb.y = sm.position.y + global.HITBOX_Y_OFFSET;
+}
+
+fn update_boulder(boulders: *std.ArrayList(Boulder)) void {
+    for (boulders.items) |*boulder| {
+        boulder.position.x += global.BOULDER_SPEED;
+        boulder.position.y += boulder.velocity.y;
+    }
 }

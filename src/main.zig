@@ -5,10 +5,12 @@ const draw_mod = @import("draw.zig");
 const update_mod = @import("update.zig");
 const Hit_Box = @import("hitbox.zig");
 const Terrain = @import("terrain.zig");
+const Hazards = @import("hazards.zig");
+const Physics = @import("physics.zig");
 
 const rl = @import("raylib");
 const Stick_Man = stick_man_mod.Stick_Man;
-// const Hitbox = Hit_Box.Hitbox;
+//const Boulder = undefined;
 
 pub fn main() anyerror!void {
     // Initialization
@@ -26,12 +28,50 @@ pub fn main() anyerror!void {
     var hit_box = Hit_Box.init();
     const terrain = Terrain.init();
 
+    var boulder_spawn_timer: f32 = 0;
+    var boulder_spawn_delay: f32 = try Hazards.generate_boulder_frequency();
+
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    const allocator = gpa.allocator();
+
+    var boulders = try Hazards.make_boulder_list(allocator);
+
+    var lazer_timer: f32 = 0;
+    var lazer_delay = try Hazards.generate_boulder_frequency();
+    var lazers = Hazards.get_lazer_list(allocator);
+
+    var exitWindow: bool = false;
+
     // Main game loop
-    while (!rl.windowShouldClose()) { // Detect window close button or ESC key
+    while (!exitWindow) { // Detect window close button or ESC key
         const dt = rl.getFrameTime();
+
+        boulder_spawn_timer += dt;
+        if (boulder_spawn_timer >= boulder_spawn_delay) {
+            const size = try Hazards.get_boulder_size();
+            const speed = try Hazards.get_boulder_speed();
+            const new_boulder = try Hazards.init_boulder(size, speed);
+            try boulders.append(new_boulder);
+
+            boulder_spawn_timer = 0;
+            boulder_spawn_delay = try Hazards.generate_boulder_frequency(); // get next delay
+        }
+
+        lazer_timer += dt;
+        if (lazer_timer >= lazer_delay) {
+            const lazer_pos = try Hazards.calc_lazer_spawn_radius(&stick_man);
+            const lazer = Hazards.init_lazer_beam(lazer_pos);
+            try lazers.append(lazer);
+
+            lazer_timer = 0;
+            lazer_delay = try Hazards.generate_boulder_frequency();
+        }
+
         // Update
         //----------------------------------------------------------------------------------
-        update_mod.update(&stick_man, &hit_box, terrain, dt);
+
+        update_mod.update(&stick_man, &hit_box, terrain, &boulders, &lazers, dt);
+
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -42,7 +82,12 @@ pub fn main() anyerror!void {
         rl.clearBackground(.white);
 
         // Draw stick man to screen
-        draw_mod.draw(stick_man, hit_box);
+        draw_mod.draw(stick_man, hit_box, &boulders, &lazers);
+
+        // Check for end game
+        if (global.GAME_ENDS) {
+            exitWindow = true;
+        }
 
         //rl.drawText("Congrats! You created your first window!", 190, 200, 20, .light_gray);
         //----------------------------------------------------------------------------------

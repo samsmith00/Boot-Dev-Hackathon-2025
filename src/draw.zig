@@ -5,11 +5,14 @@ const Vector2 = rl.Vector2;
 const Stick_Man_Module = @import("stickMan.zig");
 const global = @import("constants.zig");
 const hitbox = @import("hitbox.zig");
+const Hazards = @import("hazards.zig");
 
 const Stick_Man = Stick_Man_Module.Stick_Man;
 const Hit_Box = hitbox.Hitbox;
+const Boulder = Hazards.Boulder;
+const Lazer = Hazards.Lazer_Beam;
 
-pub fn draw(sm: Stick_Man, hb: rl.Rectangle) void {
+pub fn draw(sm: Stick_Man, hb: rl.Rectangle, boulders: *std.ArrayList(Boulder), lazers: *std.ArrayList(Lazer)) void {
     const base = sm.position;
 
     // Draw Body
@@ -60,6 +63,12 @@ pub fn draw(sm: Stick_Man, hb: rl.Rectangle) void {
     // ---------------------------- Draw Hit_Box -------------------------------------------------
     _ = hb;
     //draw_hit_box(hb);
+
+    // ---------------------------- Draw Boulder -------------------------------------------------
+    Hazards.draw_boulder(boulders);
+
+    // ---------------------------- Draw Lazers -------------------------------------------------
+    Hazards.draw_lazers(lazers);
 }
 
 fn draw_limb_helper(sm: Stick_Man, start: Vector2, length: f32, angle: f32) Vector2 {

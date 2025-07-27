@@ -8,43 +8,65 @@ const Hit_Box_Module = @import("hitbox.zig");
 
 const Stick_Man = Stick_Man_Module.Stick_Man;
 
-const Boulder = struct {
+pub const Phase = enum { Flash, Fire, Done };
+const FLASH_DURATION: f32 = 0.3;
+const FIRE_DURATION: f32 = 0.31;
+
+pub const Boulder = struct {
     position: Vector2,
     velocity: Vector2,
     size: f32,
 };
 
-const Lazer_Beam = struct {
+pub const Lazer_Beam = struct {
     position: Vector2,
+    flash_color: rl.Color,
     color: rl.Color,
+    timer: f32,
+    phase: Phase,
 };
 
-pub fn init_bouder() Boulder {
-    const size = try get_boulder_size();
+pub fn init_boulder(size: f32, speed: f32) !Boulder {
+    std.debug.print("SPEED {d}", .{speed});
+
     return Boulder{
-        .positoin = Vector2.init(global.SCREEN_WIDTH + 50, -50),
-        .velocity = Vector2.init(10, 0),
+        .position = Vector2.init(global.SCREEN_WIDTH - 10, 0),
+        .velocity = Vector2.init(speed, 0),
         .size = size,
     };
 }
 
-pub fn init_lazer_beam(pos: Vector2) Lazer_Beam {
-    const color = global.LAZER_BEAM_COLORS[global.LAZER_BEAM_COLOR_IDX];
+pub fn init_lazer_beam(pos: f32) Lazer_Beam {
+    const lazer_color = global.LAZER_BEAM_COLORS[global.LAZER_BEAM_COLOR_IDX];
+    const light_color = global.LAZER_BEAM_FLASH_COLORS[global.LAZER_BEAM_COLOR_IDX];
     global.LAZER_BEAM_COLOR_IDX += 1;
     global.LAZER_BEAM_COLOR_IDX = @mod(global.LAZER_BEAM_COLOR_IDX, 5);
 
     return Lazer_Beam{
-        .positoin = pos,
-        .color = color,
+        .position = Vector2.init(pos, -5),
+        .flash_color = light_color,
+        .color = lazer_color,
+        // ...
+        .timer = 0,
+        .phase = Phase.Flash,
     };
 }
 
-pub fn draw_boulder(boulder: *Boulder) void {
-    rl.drawPoly(boulder.position, 10, boulder.size, 6, rl.Color.gray);
+pub fn draw_boulder(boulders: *std.ArrayList(Boulder)) void {
+    for (boulders.items) |b| {
+        const x: i32 = @intFromFloat(b.position.x);
+        const y: i32 = @intFromFloat(b.position.y);
+
+        rl.drawCircle(x, y, b.size, rl.Color.brown);
+    }
 }
 
-fn get_boulder_size() !f32 {
-    var prng = std.rand.DefaultPrng.init(blk: {
+pub fn make_boulder_list(allocator: std.mem.Allocator) !std.ArrayList(Boulder) {
+    return std.ArrayList(Boulder).init(allocator);
+}
+
+pub fn get_boulder_size() !f32 {
+    var prng = std.Random.DefaultPrng.init(blk: {
         var seed: u64 = undefined;
         try std.posix.getrandom(std.mem.asBytes(&seed));
         break :blk seed;
@@ -62,4 +84,108 @@ fn get_boulder_size() !f32 {
     }
     const result: f32 = @floatFromInt(size_value);
     return result;
+}
+
+pub fn get_boulder_speed() !f32 {
+    var prng = std.Random.DefaultPrng.init(blk: {
+        var seed: u64 = undefined;
+        try std.posix.getrandom(std.mem.asBytes(&seed));
+        break :blk seed;
+    });
+    const rand = prng.random();
+
+    const speed = rand.float(f32) * 40.0 + 5.0;
+
+    return speed;
+}
+
+pub fn generate_boulder_frequency() !f32 {
+    var prng = std.Random.DefaultPrng.init(blk: {
+        var seed: u64 = undefined;
+        try std.posix.getrandom(std.mem.asBytes(&seed));
+        break :blk seed;
+    });
+    const rand = prng.random();
+
+    const c = rand.float(f32);
+
+    const result = (@mod(c, 8.0) + 1);
+
+    return result;
+}
+
+pub fn get_lazer_list(allocator: std.mem.Allocator) std.ArrayList(Lazer_Beam) {
+    return std.ArrayList(Lazer_Beam).init(allocator);
+}
+
+pub fn calc_lazer_spawn_radius(sm: *Stick_Man) !f32 {
+    var prng = std.Random.DefaultPrng.init(blk: {
+        var seed: u64 = undefined;
+        try std.posix.getrandom(std.mem.asBytes(&seed));
+        break :blk seed;
+    });
+    const rand = prng.random();
+
+    const c = rand.float(f32);
+
+    const upper_range = sm.position.x + 20.0;
+    const lower_range = sm.position.x - 20.0;
+
+    const result = (@mod(c, upper_range) + lower_range);
+
+    return result;
+}
+
+pub fn update_lazers(lazers: *std.ArrayList(Lazer_Beam), dt: f32) void {
+    var i: usize = 0;
+    while (i < lazers.items.len) {
+        var lazer = &lazers.items[i];
+        lazer.timer += dt;
+
+        switch (lazer.phase) {
+            Phase.Flash => {
+                if (lazer.timer > FLASH_DURATION) {
+                    lazer.timer = 0;
+                    lazer.phase = Phase.Fire;
+                }
+                i += 1;
+            },
+            Phase.Fire => {
+                if (lazer.timer > FIRE_DURATION) {
+                    lazer.phase = Phase.Done;
+                }
+                i += 1;
+            },
+            Phase.Done => {
+                _ = lazers.swapRemove(i);
+            },
+        }
+    }
+}
+
+pub fn draw_lazers(lazers: *std.ArrayList(Lazer_Beam)) void {
+    for (lazers.items) |lazer| {
+        const end = calc_lazer_end(lazer);
+        switch (lazer.phase) {
+            Phase.Flash => {
+                rl.drawLineEx(lazer.position, Vector2.init(lazer.position.x, end), 3, lazer.flash_color);
+            },
+            Phase.Fire => {
+                rl.drawLineEx(lazer.position, Vector2.init(lazer.position.x, end), 4, lazer.color);
+            },
+            else => {},
+        }
+    }
+}
+
+fn calc_lazer_end(lazer: Lazer_Beam) f32 {
+    var end_y: f32 = global.SCREEN_HEIGHT; // fallback value
+    for (global.TERRAIN_RECTANGLES) |rect| {
+        if (rect.x <= lazer.position.x) {
+            end_y = rect.y;
+        } else {
+            break;
+        }
+    }
+    return end_y;
 }
