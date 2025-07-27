@@ -5,8 +5,10 @@ const Vector2 = rl.Vector2;
 const Stick_Man_Module = @import("stickMan.zig");
 const global = @import("constants.zig");
 const Hit_Box_Module = @import("hitbox.zig");
+const Scatter_Limbs_Module = @import("scatter_limbs.zig");
 
 const Stick_Man = Stick_Man_Module.Stick_Man;
+const Detached_Limb = Scatter_Limbs_Module.Detached_Limb;
 
 pub const Phase = enum { Flash, Fire, Done };
 const FLASH_DURATION: f32 = 0.5;
@@ -74,11 +76,11 @@ pub fn get_boulder_size() !f32 {
     const c = rand.int(u8);
     var size_value: u32 = undefined;
     if (c < 85) {
-        size_value = 10;
+        size_value = 20;
     } else if (c >= 85 and c < 190) {
-        size_value = 15;
-    } else {
         size_value = 30;
+    } else {
+        size_value = 45;
     }
     const result: f32 = @floatFromInt(size_value);
     return result;
@@ -127,8 +129,7 @@ pub fn get_lazer_list(allocator: std.mem.Allocator) std.ArrayList(Lazer_Beam) {
     return std.ArrayList(Lazer_Beam).init(allocator);
 }
 
-// definitely a better way to do this but im too tired to try
-// also just realized i have reused the prng seed blk a lot lol
+// code duplication is crazy
 pub fn calc_lazer_spawn_radius(sm: *Stick_Man) !f32 {
     var prng = std.Random.DefaultPrng.init(blk: {
         var seed: u64 = undefined;
@@ -145,7 +146,7 @@ pub fn calc_lazer_spawn_radius(sm: *Stick_Man) !f32 {
         sign = 1;
     }
 
-    var offset = rand.float(f32) * 25 + 7;
+    var offset = rand.float(f32) * 50 + 7;
     offset *= sign;
 
     const result = sm.position.x + offset;
@@ -180,7 +181,10 @@ pub fn update_lazers(lazers: *std.ArrayList(Lazer_Beam), dt: f32) void {
     }
 }
 
-pub fn draw_lazers(lazers: *std.ArrayList(Lazer_Beam), hb: rl.Rectangle) void {
+pub fn draw_lazers(lazers: *std.ArrayList(Lazer_Beam), hb: rl.Rectangle, limbs: *std.ArrayList(Detached_Limb), sm: *Stick_Man) !void {
+    if (global.GAME_ENDS) {
+        return;
+    }
     for (lazers.items) |lazer| {
         const end = calc_lazer_end(lazer);
         switch (lazer.phase) {
@@ -189,7 +193,7 @@ pub fn draw_lazers(lazers: *std.ArrayList(Lazer_Beam), hb: rl.Rectangle) void {
             },
             Phase.Fire => {
                 rl.drawLineEx(lazer.position, Vector2.init(lazer.position.x, end), 4, lazer.color);
-                stickman_lazer_collision(hb, lazer);
+                try stickman_lazer_collision(hb, lazer, limbs, sm);
             },
             else => {},
         }
@@ -208,8 +212,10 @@ fn calc_lazer_end(lazer: Lazer_Beam) f32 {
     return end_y;
 }
 
-pub fn stickman_lazer_collision(hb: rl.Rectangle, lazer: Lazer_Beam) void {
+pub fn stickman_lazer_collision(hb: rl.Rectangle, lazer: Lazer_Beam, limbs: *std.ArrayList(Detached_Limb), sm: *Stick_Man) !void {
     if ((lazer.position.x < hb.x + hb.width) and (lazer.position.x > hb.x)) {
         std.debug.print("LAZER COLLISION", .{});
+        try Scatter_Limbs_Module.init(limbs, sm);
+        global.GAME_ENDS = true;
     }
 }

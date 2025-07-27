@@ -6,11 +6,13 @@ const Stick_Man_Module = @import("stickMan.zig");
 const global = @import("constants.zig");
 const Hit_Box_Module = @import("hitbox.zig");
 const Hazards = @import("hazards.zig");
+const Scatter_Limbs_Module = @import("scatter_limbs.zig");
 
 const Stick_Man = Stick_Man_Module.Stick_Man;
 const Boulder = Hazards.Boulder;
+const Detached_Limb = Scatter_Limbs_Module.Detached_Limb;
 
-pub fn gravity(sm: *Stick_Man, hb: *rl.Rectangle, tr: rl.Rectangle, boulders: *std.ArrayList(Boulder), dt: f32) void {
+pub fn gravity(sm: *Stick_Man, hb: *rl.Rectangle, tr: rl.Rectangle, boulders: *std.ArrayList(Boulder), limbs: *std.ArrayList(Detached_Limb), dt: f32) !void {
     _ = tr;
 
     sm.velocity.y += global.GRAVITY * dt * global.GRAVITY_ACCELERATION;
@@ -24,7 +26,7 @@ pub fn gravity(sm: *Stick_Man, hb: *rl.Rectangle, tr: rl.Rectangle, boulders: *s
             b.velocity.y *= -1;
             b.velocity.y += global.BOULDER_FRICTION;
         }
-        stickman_boulder_collision(b, hb);
+        try stickman_boulder_collision(b, hb, limbs, sm);
     }
 
     var colliding_rect_sm: rl.Rectangle = undefined;
@@ -62,8 +64,10 @@ pub fn boulder_collision(boulder: *Boulder, cr: *rl.Rectangle) bool {
     return false;
 }
 
-pub fn stickman_boulder_collision(boulder: *Boulder, hb: *rl.Rectangle) void {
+pub fn stickman_boulder_collision(boulder: *Boulder, hb: *rl.Rectangle, limbs: *std.ArrayList(Detached_Limb), sm: *Stick_Man) !void {
     if (rl.checkCollisionCircleRec(boulder.position, boulder.size, hb.*)) {
-        global.GAME_ENDS = false;
+        std.debug.print("BOULDER COLLISION\n", .{});
+        try Scatter_Limbs_Module.init(limbs, sm);
+        global.GAME_ENDS = true;
     }
 }

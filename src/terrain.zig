@@ -20,10 +20,11 @@ pub fn init() rl.Rectangle {
 pub fn generate_terrain() void {
     const rect_width: f32 = 120.0;
     const rect_height: f32 = 12;
-    const num_of_recs: usize = @intFromFloat(global.SCREEN_WIDTH / rect_width);
+    var num_of_recs: usize = @intFromFloat(global.SCREEN_WIDTH / rect_width);
+    num_of_recs += 15;
 
     var x_pos: f32 = 0;
-    var y_pos: f32 = global.sh - 20.0; // Start height of terrain
+    var y_pos: f32 = global.sh + 20.0; // Start height of terrain
 
     //    var terrain_rectangles: [num_of_recs]rl.Rectangle = undefined;
 

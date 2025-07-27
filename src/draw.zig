@@ -6,13 +6,18 @@ const Stick_Man_Module = @import("stickMan.zig");
 const global = @import("constants.zig");
 const hitbox = @import("hitbox.zig");
 const Hazards = @import("hazards.zig");
+const Scatter_Limbs_Module = @import("scatter_limbs.zig");
 
 const Stick_Man = Stick_Man_Module.Stick_Man;
 const Hit_Box = hitbox.Hitbox;
 const Boulder = Hazards.Boulder;
 const Lazer = Hazards.Lazer_Beam;
+const Detached_Limb = Scatter_Limbs_Module.Detached_Limb;
 
-pub fn draw(sm: Stick_Man, hb: rl.Rectangle, boulders: *std.ArrayList(Boulder), lazers: *std.ArrayList(Lazer)) void {
+pub fn draw(sm: *Stick_Man, hb: rl.Rectangle, boulders: *std.ArrayList(Boulder), lazers: *std.ArrayList(Lazer), limbs: *std.ArrayList(Detached_Limb)) !void {
+    if (global.GAME_ENDS) {
+        return;
+    }
     const base = sm.position;
 
     // Draw Body
@@ -67,10 +72,12 @@ pub fn draw(sm: Stick_Man, hb: rl.Rectangle, boulders: *std.ArrayList(Boulder), 
     Hazards.draw_boulder(boulders);
 
     // ---------------------------- Draw Lazers -------------------------------------------------
-    Hazards.draw_lazers(lazers, hb);
+    try Hazards.draw_lazers(lazers, hb, limbs, sm);
+
+    // ---------------------------- Scatter Limbs => in main func -------------------------------------------------
 }
 
-fn draw_limb_helper(sm: Stick_Man, start: Vector2, length: f32, angle: f32) Vector2 {
+fn draw_limb_helper(sm: *Stick_Man, start: Vector2, length: f32, angle: f32) Vector2 {
     const x = start.x + std.math.cos(angle) * length * sm.facing;
     const y = start.y + std.math.sin(angle) * length;
 

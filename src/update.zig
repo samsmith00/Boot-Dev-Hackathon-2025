@@ -8,18 +8,23 @@ const gravity = @import("physics.zig");
 const terrain = @import("terrain.zig");
 const Hit_Box_Module = @import("hitbox.zig");
 const Hazards = @import("hazards.zig");
+const Scatter_Limbs_Module = @import("scatter_limbs.zig");
 
 const Stick_Man = Stick_Man_Module.Stick_Man;
 const Boulder = Hazards.Boulder;
 const Lazer = Hazards.Lazer_Beam;
+const Detached_Limb = Scatter_Limbs_Module.Detached_Limb;
 
-pub fn update(sm: *Stick_Man, hb: *rl.Rectangle, tr: rl.Rectangle, boulders: *std.ArrayList(Boulder), lazers: *std.ArrayList(Lazer), dt: f32) void {
+pub fn update(sm: *Stick_Man, hb: *rl.Rectangle, tr: rl.Rectangle, boulders: *std.ArrayList(Boulder), lazers: *std.ArrayList(Lazer), limbs: *std.ArrayList(Detached_Limb), dt: f32) !void {
+    if (global.GAME_ENDS) {
+        return;
+    }
     sm.animation_phase += dt;
     update_stickman(sm);
     update_hitbox(sm, hb);
     run(sm);
     jump(sm);
-    gravity.gravity(sm, hb, tr, boulders, dt);
+    try gravity.gravity(sm, hb, tr, boulders, limbs, dt);
     terrain.generate_terrain();
     update_boulder(boulders);
     Hazards.update_lazers(lazers, dt);
