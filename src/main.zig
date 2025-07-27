@@ -7,9 +7,11 @@ const Hit_Box = @import("hitbox.zig");
 const Terrain = @import("terrain.zig");
 const Hazards = @import("hazards.zig");
 const Physics = @import("physics.zig");
+const Limb = @import("scatter_limbs.zig");
 
 const rl = @import("raylib");
 const Stick_Man = stick_man_mod.Stick_Man;
+
 //const Boulder = undefined;
 
 pub fn main() anyerror!void {
@@ -40,6 +42,8 @@ pub fn main() anyerror!void {
     var lazer_delay = try Hazards.generate_boulder_frequency();
     var lazers = Hazards.get_lazer_list(allocator);
 
+    //var limbs = std.ArrayList(allocator).init(Limb.Detached_Limb);
+
     var exitWindow: bool = false;
 
     // Main game loop
@@ -50,7 +54,8 @@ pub fn main() anyerror!void {
         if (boulder_spawn_timer >= boulder_spawn_delay) {
             const size = try Hazards.get_boulder_size();
             const speed = try Hazards.get_boulder_speed();
-            const new_boulder = try Hazards.init_boulder(size, speed);
+            const pos = try Hazards.get_boulder_pos();
+            const new_boulder = try Hazards.init_boulder(pos, size, speed);
             try boulders.append(new_boulder);
 
             boulder_spawn_timer = 0;

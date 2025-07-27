@@ -25,7 +25,6 @@ pub const Stick_Man = struct {
     second_jump: bool,
     animation_phase: f32,
     on_ground: bool,
-    is_colliding: bool,
 
     pub fn init() Stick_Man {
         return Stick_Man{
@@ -53,7 +52,6 @@ pub const Stick_Man = struct {
             .second_jump = false,
             .animation_phase = 0.0,
             .on_ground = true,
-            .is_colliding = true,
         };
     }
 };

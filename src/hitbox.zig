@@ -18,21 +18,3 @@ pub fn init() rl.Rectangle {
         .height = global.HITBOX_HEIGHT,
     };
 }
-
-// pub const Hitbox = rl.Rectangle {
-//     // x: i32,
-//     // y: i32,
-//     // // ...
-//     // width: i32,
-//     // height: i32,
-//
-//     pub fn init() rl.Rectangle {
-//         return rl.Rectangle{
-//             .x = global.body_top_x + global.hitbox_x_offset,
-//             .y= global.body_top_y + global.hitbox_y_offset,
-//             // ...
-//             .width = global.hitbox_width,
-//             .height = global.hitbox_height,
-//         };
-//     }
-// };

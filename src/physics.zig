@@ -64,6 +64,6 @@ pub fn boulder_collision(boulder: *Boulder, cr: *rl.Rectangle) bool {
 
 pub fn stickman_boulder_collision(boulder: *Boulder, hb: *rl.Rectangle) void {
     if (rl.checkCollisionCircleRec(boulder.position, boulder.size, hb.*)) {
-        global.GAME_ENDS = true;
+        global.GAME_ENDS = false;
     }
 }

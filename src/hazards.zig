@@ -9,8 +9,8 @@ const Hit_Box_Module = @import("hitbox.zig");
 const Stick_Man = Stick_Man_Module.Stick_Man;
 
 pub const Phase = enum { Flash, Fire, Done };
-const FLASH_DURATION: f32 = 0.3;
-const FIRE_DURATION: f32 = 0.31;
+const FLASH_DURATION: f32 = 0.5;
+const FIRE_DURATION: f32 = 0.3;
 
 pub const Boulder = struct {
     position: Vector2,
@@ -26,11 +26,9 @@ pub const Lazer_Beam = struct {
     phase: Phase,
 };
 
-pub fn init_boulder(size: f32, speed: f32) !Boulder {
-    std.debug.print("SPEED {d}", .{speed});
-
+pub fn init_boulder(starting_pos: Vector2, size: f32, speed: f32) !Boulder {
     return Boulder{
-        .position = Vector2.init(global.SCREEN_WIDTH - 10, 0),
+        .position = starting_pos,
         .velocity = Vector2.init(speed, 0),
         .size = size,
     };
@@ -76,14 +74,25 @@ pub fn get_boulder_size() !f32 {
     const c = rand.int(u8);
     var size_value: u32 = undefined;
     if (c < 85) {
-        size_value = 15;
+        size_value = 10;
     } else if (c >= 85 and c < 190) {
-        size_value = 30;
+        size_value = 15;
     } else {
-        size_value = 45;
+        size_value = 30;
     }
     const result: f32 = @floatFromInt(size_value);
     return result;
+}
+
+pub fn get_boulder_pos() !Vector2 {
+    var prng = std.Random.DefaultPrng.init(blk: {
+        var seed: u64 = undefined;
+        try std.posix.getrandom(std.mem.asBytes(&seed));
+        break :blk seed;
+    });
+    const rand = prng.random();
+    const idx = rand.uintLessThan(usize, 5);
+    return global.BOULDER_STARTING_POS[idx];
 }
 
 pub fn get_boulder_speed() !f32 {
@@ -109,7 +118,7 @@ pub fn generate_boulder_frequency() !f32 {
 
     const c = rand.float(f32);
 
-    const result = (@mod(c, 8.0) + 1);
+    const result = (@mod(c, 2.0) + 1);
 
     return result;
 }
@@ -118,6 +127,8 @@ pub fn get_lazer_list(allocator: std.mem.Allocator) std.ArrayList(Lazer_Beam) {
     return std.ArrayList(Lazer_Beam).init(allocator);
 }
 
+// definitely a better way to do this but im too tired to try
+// also just realized i have reused the prng seed blk a lot lol
 pub fn calc_lazer_spawn_radius(sm: *Stick_Man) !f32 {
     var prng = std.Random.DefaultPrng.init(blk: {
         var seed: u64 = undefined;
@@ -126,12 +137,18 @@ pub fn calc_lazer_spawn_radius(sm: *Stick_Man) !f32 {
     });
     const rand = prng.random();
 
-    const c = rand.float(f32);
+    var sign = rand.float(f32);
 
-    const upper_range = sm.position.x + 20.0;
-    const lower_range = sm.position.x - 20.0;
+    if (sign < 0.5) {
+        sign = -1;
+    } else {
+        sign = 1;
+    }
 
-    const result = (@mod(c, upper_range) + lower_range);
+    var offset = rand.float(f32) * 25 + 7;
+    offset *= sign;
+
+    const result = sm.position.x + offset;
 
     return result;
 }
@@ -163,7 +180,7 @@ pub fn update_lazers(lazers: *std.ArrayList(Lazer_Beam), dt: f32) void {
     }
 }
 
-pub fn draw_lazers(lazers: *std.ArrayList(Lazer_Beam)) void {
+pub fn draw_lazers(lazers: *std.ArrayList(Lazer_Beam), hb: rl.Rectangle) void {
     for (lazers.items) |lazer| {
         const end = calc_lazer_end(lazer);
         switch (lazer.phase) {
@@ -172,6 +189,7 @@ pub fn draw_lazers(lazers: *std.ArrayList(Lazer_Beam)) void {
             },
             Phase.Fire => {
                 rl.drawLineEx(lazer.position, Vector2.init(lazer.position.x, end), 4, lazer.color);
+                stickman_lazer_collision(hb, lazer);
             },
             else => {},
         }
@@ -188,4 +206,10 @@ fn calc_lazer_end(lazer: Lazer_Beam) f32 {
         }
     }
     return end_y;
+}
+
+pub fn stickman_lazer_collision(hb: rl.Rectangle, lazer: Lazer_Beam) void {
+    if ((lazer.position.x < hb.x + hb.width) and (lazer.position.x > hb.x)) {
+        std.debug.print("LAZER COLLISION", .{});
+    }
 }

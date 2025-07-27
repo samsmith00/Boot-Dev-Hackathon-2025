@@ -61,14 +61,13 @@ pub fn draw(sm: Stick_Man, hb: rl.Rectangle, boulders: *std.ArrayList(Boulder), 
     rl.drawLineEx(t_leg_end_l, b_leg_end_l, 2, rl.Color.black);
 
     // ---------------------------- Draw Hit_Box -------------------------------------------------
-    _ = hb;
-    //draw_hit_box(hb);
+    draw_hit_box(hb);
 
     // ---------------------------- Draw Boulder -------------------------------------------------
     Hazards.draw_boulder(boulders);
 
     // ---------------------------- Draw Lazers -------------------------------------------------
-    Hazards.draw_lazers(lazers);
+    Hazards.draw_lazers(lazers, hb);
 }
 
 fn draw_limb_helper(sm: Stick_Man, start: Vector2, length: f32, angle: f32) Vector2 {
