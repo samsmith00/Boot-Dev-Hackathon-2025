@@ -26,13 +26,13 @@ pub fn main() anyerror!void {
     //
     // Initialization
     //--------------------------------------------------------------------------------------
-    const screenWidth = global.SCREEN_WIDTH;
-    const screenHeight = global.SCREEN_HEIGHT;
+
+    rl.setConfigFlags(.{ .window_resizable = true }); // Optional: lets you resize
+    const screenWidth = rl.getMonitorWidth(0);
+    const screenHeight = rl.getMonitorHeight(0);
 
     rl.initWindow(screenWidth, screenHeight, global.TITLE);
-
-    rl.toggleFullscreen(); // call this once after rl.initWindow
-    defer rl.closeWindow(); // Close window and OpenGL context
+    rl.toggleFullscreen(); // Enter fullscreen, using screen's actual resolution    defer rl.closeWindow(); // Close window and OpenGL context
 
     rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -99,10 +99,10 @@ pub fn main() anyerror!void {
         if (global.GAME_ENDS) {
             _ = lazers.clearRetainingCapacity();
             _ = boulders.clearRetainingCapacity();
-            const x: i32 = @divTrunc(screenWidth, 2) - 100;
-            const y: i32 = @divTrunc(screenHeight, 2);
+            // const x: i32 = @divTrunc(screenWidth, 2) - 100;
+            // const y: i32 = @divTrunc(screenHeight, 2);
             Scatter_Limbs_Module.draw_scattered_limbs(&limbs);
-            rl.drawText("Oh no, you died!! {q} to quit or {r} to restart", x, y, 20, rl.Color.red);
+            rl.drawText("Oh no, you died!! {q} to quit or {r} to restart", @divTrunc(screenWidth, 2), @divTrunc(screenHeight, 2), 20, rl.Color.red);
             if (rl.isKeyPressed(.q)) {
                 exitWindow = true;
             }
@@ -118,3 +118,4 @@ pub fn main() anyerror!void {
         rl.endDrawing();
     }
 }
+
