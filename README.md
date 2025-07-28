@@ -36,7 +36,7 @@ chmod +x bootDevHackathon && \
 
 ## 🎮 How to Play
 
-- Use your keyboard (W A S D SPACE) to **move and dodge**.
+- Use your keyboard (A D SPACE) to **move and dodge**.
 - Avoid falling **boulders** and  **lasers**.
 - Didn't have time for a difficulty progression so you get max difficulty right away 😁
 - You have one objective => stay alive as long as possible!
