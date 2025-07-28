@@ -35,7 +35,7 @@ chmod +x bootDevHackathon && \
 
 ## 🎮 How to Play
 
-- Use your keyboard to **move and dodge**.
+- Use your keyboard (W A S D SPACE) to **move and dodge**.
 - Avoid falling **boulders** and  **lasers**.
 - Didn't have time for a difficulty progression so you get max difficulty right away 😁
 - You have one objective => stay alive as long as possible!
@@ -53,9 +53,9 @@ chmod +x bootDevHackathon && \
 
 ## 📜 Notes
 
-- This was a personal challenge to learn game dev from scratch.
-- Simple physics, basic hitboxes, and hand-tuned gameplay.
-- Expect jank, surprises, and maybe a laugh or two 😄
+- Due to time constraints this game is NOT polished (and evidently so)
+- The death screen, is unfinished and rushed, and I wanted the stickman's body to explode when he died but I was unable to deliver ☹️
+- Simple physics, basic hitboxes, basic obsticals
 
 ## Ai Disclamer 🤖
 - For some reason my usual pretty good math brain could not handle video game maths, used Ai to help get stickman's moving animations
