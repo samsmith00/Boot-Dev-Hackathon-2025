@@ -62,5 +62,10 @@ chmod +x bootDevHackathon && \
 - I have never compiled to multiple operating systems before, so I used Ai to help make the game Mac, Linux, and Windows compatable
 
 # Gameplay
+[▶️ Watch Gameplay](https://github.com/user-attachments/assets/71769dc5-8be3-4366-bfbf-04590c1b21b0)
+
+[▶️ Watch Gameplay](https://github.com/user-attachments/assets/b41aec78-94f6-4bef-9341-bcfd6f791bc0)
+
+[▶️ Watch Gameplay](https://github.com/user-attachments/assets/98012de3-4472-4298-89bc-164a64d1ec2d)
 
 
