@@ -21,6 +21,7 @@ chmod +x run_linux.sh
 1. Download the latest Windows zip file from the [Releases page](https://github.com/samsmith00/Boot-Dev-Hackathon-2025/releases/latest).
 2. Extract/unzip the downloaded file.
 3. Double-click `bootDevHackathon.exe` to launch the game.
+(Disclaimer I do not have acces to a windows machine so I was unable to test if this game worked properly hopefully it does 🤞)
 
 ### Mac 
 
