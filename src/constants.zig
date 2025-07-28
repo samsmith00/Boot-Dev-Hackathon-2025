@@ -137,4 +137,3 @@ pub const BOULDER_STARTING_POS: [5]rl.Vector2 = .{
 };
 
 pub var GAME_ENDS: bool = false;
-

@@ -1,0 +1,35 @@
+
+# Zig build artifacts
+zig-cache/
+zig-out/
+
+# AppImage build artifacts
+*.AppImage
+
+# macOS zip artifact
+*.zip
+
+# macOS specific
+.DS_Store
+
+# Windows executables
+*.exe
+*.pdb
+
+# Temporary editor files
+*.swp
+*.swo
+*~
+
+# VSCode
+.vscode/
+
+# Xcode or CLion
+.idea/
+
+# Backup files
+*.bak
+*.tmp
+
+# System
+Thumbs.db
