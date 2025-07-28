@@ -13,17 +13,6 @@ const rl = @import("raylib");
 const Stick_Man = stick_man_mod.Stick_Man;
 
 pub fn main() anyerror!void {
-    // // Initialization
-    // //--------------------------------------------------------------------------------------
-    // rl.setConfigFlags(.{ .window_highdpi = false }); // Disable DPI scaling
-    // const screenWidth = rl.getMonitorWidth(0); // Get primary monitor width
-    // const screenHeight = rl.getMonitorHeight(0); // Get primary monitor height
-    // rl.initWindow(screenWidth, screenHeight, global.TITLE);
-    // defer rl.closeWindow(); // Close window and OpenGL context
-    //
-    // rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
-    // //--------------------------------------------------------------------------------------
-    //
     // Initialization
     //--------------------------------------------------------------------------------------
 
@@ -32,7 +21,8 @@ pub fn main() anyerror!void {
     const screenHeight = rl.getMonitorHeight(0);
 
     rl.initWindow(screenWidth, screenHeight, global.TITLE);
-    rl.toggleFullscreen(); // Enter fullscreen, using screen's actual resolution    defer rl.closeWindow(); // Close window and OpenGL context
+    rl.toggleFullscreen();
+    defer rl.closeWindow(); // Close window and OpenGL context
 
     rl.setTargetFPS(60); // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -111,11 +101,6 @@ pub fn main() anyerror!void {
             }
         }
 
-        // else {
-        //     try draw_mod.draw(&stick_man, hit_box, &boulders, &lazers, &limbs);
-        // }
-
         rl.endDrawing();
     }
 }
-
