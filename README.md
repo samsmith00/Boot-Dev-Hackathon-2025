@@ -55,10 +55,10 @@ chmod +x bootDevHackathon && \
 
 - Due to time constraints this game is NOT polished (and evidently so)
 - The death screen, is unfinished and rushed, and I wanted the stickman's body to explode when he died but I was unable to deliver ☹️
-- Simple physics, basic hitboxes, basic obsticals
+- Simple physics, basic hitboxes, basic obstacles
 
 ## Ai Disclamer 🤖
-- For some reason my usual pretty good math brain could not handle video game maths, used Ai to help get stickman's moving animations
+- For some reason my usual pretty good math brain could not handle video game maths, so used Ai to help get stickman's moving animations
 - I have never compiled to multiple operating systems before, so I used Ai to help make the game Mac, Linux, and Windows compatable
 
 # Gameplay
