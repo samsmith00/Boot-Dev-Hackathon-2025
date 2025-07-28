@@ -55,6 +55,7 @@ chmod +x bootDevHackathon && \
 ## 📜 Notes
 
 - Due to time constraints this game is NOT polished (and evidently so)
+- Please ignore some of my unfinished code and maybe questionable coding style/syntax, especially the mess in constants.zig file
 - The death screen, is unfinished and rushed, and I wanted the stickman's body to explode when he died but I was unable to deliver ☹️
 - Simple physics, basic hitboxes, basic obstacles
 
